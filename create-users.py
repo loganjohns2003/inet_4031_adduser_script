@@ -13,56 +13,49 @@ import sys
 def main():
     for line in sys.stdin:
 
-        #REPLACE THIS COMMENT - this "regular expression" is searching for the presence of a character - what is it and why?
-        #The important part is WHY it is looking for a particular characer - what is that character being used for?
+        #Match variable that looks for the presence of a # or ^, (NONE or Match) used later 
         match = re.match("^#",line)
 
-        #REPLACE THIS COMMENT - why is the code doing this?
+        #Creates an array that sperates the line by : in the input file, each field should be an element
         fields = line.strip().split(':')
 
-        #REPLACE THESE COMMENTS with a single comment describing the logic of the IF 
-        #what would an appropriate comment be for describing what this IF statement is checking for?
-        #what happens if the IF statement evaluates to true?
-        #how does this IF statement rely on what happened in the prior two lines of code? The match and fields lines.
-        #the code clearly shows that the variables match and the length of fields is being checked for being != 5  so why is it doing that?
+        #Checks if one of the characters was present or if there are nnot the correct amoount of fields in the input file and skips the line
         if match or len(fields) != 5:
             continue
 
-        #REPLACE THIS COMMENT - what is the purpose of the next three lines. How does it relate to what is stored in the passwd file?
+        #Create variables for each field used in the creation of a user in the system, username takes the first field that was seperated in the fields array, password is the second field, full name combines the 3rd and 4th field
         username = fields[0]
         password = fields[1]
         gecos = "%s %s,,," % (fields[3],fields[2])
 
-        #REPLACE THIS COMMENT - why is this split being done?
+        #Creates a group variable based on the last field in the input file and field array, can be mutiple hence why we split it to create another array containing all groups the user is apart of
         groups = fields[4].split(',')
 
-        #REPLACE THIS COMMENT - what is the point of this print statement?
+        #Lets us know who the account is for
         print("==> Creating account for %s..." % (username))
-        #REPLACE THIS COMMENT - what is this line doing?  What will the variable "cmd" contain.
+        #Creates a variable cmd that houses the actual command waiting to be ran in the system inputted with the correct information from the input file
         cmd = "/usr/sbin/adduser --disabled-password --gecos '%s' %s" % (gecos,username)
 
-        #REMOVE THIS COMMENT AFTER YOU UNDERSTAND WHAT TO DO - these statements are currently "commented out" as talked about in class
-        #The first time you run the code...what should you do here?  If uncommented - what will the os.system(cmd) statemetn attempt to do?
+        #This is what actually runs the command on the operating system, can leave commented out for dry runs and test, if no will execute the command and could be a messy cleanup if an error in the input file is present
         #print(cmd)
-        #os.system(cmd)
+        os.system(cmd)
 
-        #REPLACE THIS COMMENT - what is the point of this print statement?
+        #Lets us know we are now setting the password for the given user
         print("==> Setting the password for %s..." % (username))
-        #REPLACE THIS COMMENT - what is this line doing?  What will the variable "cmd" contain. You'll need to lookup what these linux commands do.
+        #Edits the cmd variable with a new command that sets the password for a given user using root privileges
         cmd = "/bin/echo -ne '%s\n%s' | /usr/bin/sudo /usr/bin/passwd %s" % (password,password,username)
 
-        #REMOVE THIS COMMENT AFTER YOU UNDERSTAND WHAT TO DO - these statements are currently "commented out" as talked about in class
-        #The first time you run the code...what should you do here?  If uncommented - what will the os.system(cmd) statemetn attempt to do?
+        #Executes the set password command, leave commented out for dry runs and when testing, any errors in the input file will be executed
         #print(cmd)
-        #os.system(cmd)
+        os.system(cmd)
 
         for group in groups:
-            #REPLACE THIS COMMENT with one that answers "What is this IF statement looking for and why? If group !='-' what happens?"
+            #Loops through the group array created could have mutiple groups might have just one, if a group is specified that is not "-" will assign the user to that group and execute the command if "-" is detected do nothing. Does this for all elements in group
             if group != '-':
                 print("==> Assigning %s to the %s group..." % (username,group))
                 cmd = "/usr/sbin/adduser %s %s" % (username,group)
                 #print(cmd)
-                #os.system(cmd)
+                os.system(cmd)
 
 if __name__ == '__main__':
     main()
